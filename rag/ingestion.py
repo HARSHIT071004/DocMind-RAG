@@ -6,21 +6,42 @@ import os
 
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_community.vectorstores import FAISS
-from langchain_openai import OpenAIEmbeddings
+from langchain_core.embeddings import Embeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from sentence_transformers import SentenceTransformer
 
 from rag.config import settings
 
 logger = logging.getLogger(__name__)
 
+_EMBEDDING_MODEL: SentenceTransformer | None = None
+_EMBEDDING_DIM = 384
 
-def _get_embeddings() -> OpenAIEmbeddings:
-    """Initialise the embedding model via OpenRouter."""
-    return OpenAIEmbeddings(
-        api_key=settings.OPENROUTER_API_KEY,
-        model=settings.EMBEDDING_MODEL,
-        base_url="https://openrouter.ai/api/v1",
-    )
+
+class _LocalEmbeddings(Embeddings):
+    """Adapter that wraps a SentenceTransformer model as LangChain Embeddings."""
+
+    def __init__(self, model: SentenceTransformer) -> None:
+        self._model = model
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        return self._model.encode(texts, show_progress_bar=False).tolist()
+
+    def embed_query(self, text: str) -> list[float]:
+        return self._model.encode(text, show_progress_bar=False).tolist()
+
+
+def _get_embeddings() -> _LocalEmbeddings:
+    """Initialise a local embedding model (no API key needed)."""
+    global _EMBEDDING_MODEL
+    if _EMBEDDING_MODEL is None:
+        try:
+            _EMBEDDING_MODEL = SentenceTransformer(
+                "all-MiniLM-L6-v2", local_files_only=True
+            )
+        except OSError:
+            _EMBEDDING_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
+    return _LocalEmbeddings(_EMBEDDING_MODEL)
 
 
 def build_vector_store() -> FAISS:

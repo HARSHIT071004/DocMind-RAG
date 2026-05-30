@@ -1,11 +1,9 @@
 faiss-cpu
 langchain-openai
-PyPDF2
-langchain_google_genai
 langchain
-streamlit
+flask
 langchain_community
 python-dotenv
 pypdf
-google-cloud-aiplatform>=1.38
 pydantic-settings
+sentence-transformers
