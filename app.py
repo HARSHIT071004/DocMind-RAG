@@ -47,6 +47,7 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
 
     /* ── Global font (preserve Material Symbols) ── */
     *:not([class*="material"]):not([data-testid="stSidebarCollapseButton"] span):not([data-testid="stSidebarCollapsedControl"] span) {
@@ -56,29 +57,27 @@ st.markdown("""
     [data-testid="stSidebarCollapseButton"] span,
     [data-testid="stSidebarCollapsedControl"] span {
         font-family: 'Material Symbols Rounded' !important;
+        font-variation-settings: 'wght' 500 !important;
+        font-size: 20px !important;
+        color: #aaa !important;
+        font-feature-settings: 'liga' on !important;
     }
 
-    /* ── Hide chrome ── */
+    /* ── Hide chrome & avatars ── */
     #MainMenu, footer, .stDeployButton { display: none !important; }
     .stApp > header {
         background: transparent !important;
         border: none !important;
     }
+    [data-testid="stChatMessage"] [data-testid="stChatMessageAvatar"],
+    [data-testid="stChatMessage"] img,
+    [data-testid="stChatMessageAvatar"] { display: none !important; }
 
     /* ── Animations ── */
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(6px); }
         to   { opacity: 1; transform: translateY(0); }
     }
-    @keyframes skeletonPulse {
-        0%, 100% { opacity: 0.04; }
-        50%      { opacity: 0.09; }
-    }
-    @keyframes dotPulse {
-        0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-        40%           { opacity: 1;   transform: scale(1); }
-    }
-
     /* ── Backgrounds ── */
     .stApp, .main, .main .block-container,
     [data-testid="stAppViewContainer"],
@@ -140,6 +139,8 @@ st.markdown("""
     }
     [data-testid="stSidebarCollapsedControl"] button:hover,
     [data-testid="stSidebarCollapseButton"] button:hover { color: #aaa !important; }
+    [data-testid="stSidebarCollapsedControl"] button span,
+    [data-testid="stSidebarCollapseButton"] button span { color: #aaa !important; }
 
     /* Sidebar file uploader */
     section[data-testid="stSidebar"] [data-testid="stFileUploader"],
@@ -287,29 +288,13 @@ st.markdown("""
         height: 26px !important;
     }
 
-    /* ═══════ SKELETON LOADER ═══════ */
-    .skeleton-wrap {
-        padding: 0.8rem 0; animation: fadeIn 0.3s ease;
+    /* ═══════ CURSOR BLINK ═══════ */
+    .cursor-blink {
+        display: inline-block; width: 6px; height: 14px;
+        background: #52525b; border-radius: 1px;
+        animation: blink 1s step-end infinite; vertical-align: middle;
     }
-    .skeleton-line {
-        height: 10px; border-radius: 4px;
-        background: #ffffff; margin-bottom: 0.55rem;
-        animation: skeletonPulse 1.4s ease-in-out infinite;
-    }
-    .skeleton-line:nth-child(1) { width: 85%; animation-delay: 0s; }
-    .skeleton-line:nth-child(2) { width: 70%; animation-delay: 0.15s; }
-    .skeleton-line:nth-child(3) { width: 55%; animation-delay: 0.3s; }
-
-    .thinking-dots {
-        display: flex; gap: 4px; padding: 0.4rem 0;
-    }
-    .thinking-dots span {
-        width: 5px; height: 5px; border-radius: 50%;
-        background: #2dd4bf; display: inline-block;
-    }
-    .thinking-dots span:nth-child(1) { animation: dotPulse 1.2s ease-in-out infinite; }
-    .thinking-dots span:nth-child(2) { animation: dotPulse 1.2s ease-in-out 0.2s infinite; }
-    .thinking-dots span:nth-child(3) { animation: dotPulse 1.2s ease-in-out 0.4s infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
 
     /* ═══════ TOKEN BADGE ═══════ */
     .token-badge {
@@ -387,6 +372,25 @@ st.markdown("""
         color: #27272a; font-size: 0.74rem; margin: 0;
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function replaceCollapseIcon() {
+        const spans = document.querySelectorAll('[data-testid="stSidebarCollapseButton"] span, [data-testid="stSidebarCollapsedControl"] span');
+        spans.forEach(function(span) {
+            if (span.textContent.includes('keyboard') || span.textContent.includes('arrow')) {
+                span.innerHTML = '‹';
+                span.style.fontFamily = 'serif';
+                span.style.fontSize = '18px';
+                span.style.fontWeight = '600';
+                span.style.lineHeight = '1';
+            }
+        });
+    }
+    replaceCollapseIcon();
+    new MutationObserver(replaceCollapseIcon).observe(document.body, { childList: true, subtree: true });
+});
+</script>
 """, unsafe_allow_html=True)
 
 # ── Header ──────────────────────────────────────────────────────────
@@ -444,14 +448,7 @@ if st.session_state.pending_query:
     with st.chat_message("assistant"):
         # Skeleton placeholder
         skeleton = st.empty()
-        skeleton.markdown("""
-        <div class="skeleton-wrap">
-            <div class="thinking-dots"><span></span><span></span><span></span></div>
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-        </div>
-        """, unsafe_allow_html=True)
+        skeleton.markdown("<span class=\"cursor-blink\"></span>", unsafe_allow_html=True)
 
         # Get answer
         ai_text = ""
