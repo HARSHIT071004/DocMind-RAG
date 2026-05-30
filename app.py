@@ -46,6 +46,7 @@ def _stream_text(text: str):
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
 
     /* ── Global font (preserve Material Symbols) ── */
     *:not([class*="material"]):not([data-testid="stSidebarCollapseButton"] span):not([data-testid="stSidebarCollapsedControl"] span) {
