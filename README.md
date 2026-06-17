@@ -1,112 +1,166 @@
-# DocMind-RAG
+<div align="center">
+  <h1>DocMind-RAG</h1>
+  <p><strong>Production-Grade Hybrid RAG System for Document Question Answering</strong></p>
+  <p>
+    <img src="https://img.shields.io/badge/python-3.11-blue" alt="Python 3.11"/>
+    <img src="https://img.shields.io/badge/flask-3.1-green" alt="Flask"/>
+    <img src="https://img.shields.io/badge/FAISS+BM25-Hybrid-orange" alt="Hybrid Search"/>
+    <img src="https://img.shields.io/badge/docker-ready-2496ED" alt="Docker Ready"/>
+    <img src="https://img.shields.io/badge/license-GPLv3-red" alt="License"/>
+  </p>
+</div>
 
-## About The Project
+---
 
+## Architecture
 
-The Document Question Answering System is a sophisticated tool designed to streamline information retrieval from vast document collections. Built on a foundation of advanced natural language processing techniques, the system features a user-friendly interface powered by Streamlit. Leveraging the LangChain framework and Google Generative AI, it ingests documents, converts them into vector embeddings, and employs the Retrieval augmentation generation(RAG) architecture for accurate question answering. Users can input queries through the intuitive interface, with the system retrieving precise answers based on the document context. With its efficiency, accuracy, and scalability, the system finds applications in research, knowledge management, education, and customer support, representing a significant advancement in information access technology.
+DocMind-RAG is a full-stack Retrieval-Augmented Generation system combining dense and sparse retrieval with advanced reranking, confidence scoring, and corrective RAG for accurate document-based question answering.
 
-## Library Requirements
+```
+User Query → Query Cache → Hybrid Retrieval → MMR Diversify
+→ Cross-Encoder Rerank → CRAG (Corrective RAG) → LLM Synthesis
+→ Confidence Scoring → SSE Streamed Response
+```
 
- - faiss-cpu
- - langchain-groq
- - PyPDF2
- - langchain_google_genai
- - langchain
- - streamlit
- - python-dotenv
+### Components
 
-## Getting Started
+| Layer | Technology |
+|---|---|
+| **Ingestion** | PyMuPDF (pdf→text), Small-to-Big chunking with parent-child mapping |
+| **Dense Retrieval** | FAISS (all-MiniLM-L6-v2 embeddings) |
+| **Sparse Retrieval** | BM25Okapi (keyword-based) |
+| **Fusion** | Weighted RRF (Reciprocal Rank Fusion) |
+| **Diversification** | MMR (Maximum Marginal Relevance) |
+| **Reranking** | Cross-Encoder (ms-marco-MiniLM-L-2-v2) |
+| **LLM** | OpenRouter (multi-model with fallbacks) |
+| **Corrective RAG** | Confidence threshold → re-retrieve on low confidence |
+| **Caching** | LRU + TTL-based query cache |
+| **Memory** | SQLite conversation history (per-session) |
+| **API** | Flask + Waitress with SSE streaming, rate limiting |
+| **Logging** | Structured logging (structlog) |
+| **Container** | Docker (python:3.11-slim) |
 
-This will help you understand how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+---
 
-## Installation Steps
+## Quick Start
 
-### Option 1: Installation from GitHub
+### Prerequisites
 
-Follow these steps to install and set up the project directly from the GitHub repository:
+- Python 3.11+
+- OpenRouter API key ([get one here](https://openrouter.ai/keys))
 
-1. **Clone the Repository**
-   - Open your terminal or command prompt.
-   - Navigate to the directory where you want to install the project.
-   - Run the following command to clone the GitHub repository:
-     ```
-     git clone https://github.com/HARSHIT071004/DocMind-RAG.git
-     ```
+### Local Setup
 
-2. **Create a Virtual Environment** (Optional but recommended)
-   - It's a good practice to create a virtual environment to manage project dependencies. Run the following command:
-     ```
-     conda create -p <Environment_Name> python==<python version> -y
-     ```
+```bash
+git clone https://github.com/HARSHIT071004/DocMind-RAG.git
+cd DocMind-RAG
 
-3. **Activate the Virtual Environment** (Optional)
-   - Activate the virtual environment based on your operating system:
-       ```
-       conda activate <Environment_Name>/
-       ```
+python -m venv venv
+# Windows: .\venv\Scripts\activate
+# Linux/mac: source venv/bin/activate
 
-4. **Install Dependencies**
-   - Navigate to the project directory:
-     ```
-     cd [project_directory]
-     ```
-   - Run the following command to install project dependencies:
-     ```
-     pip install -r requirements.txt
-     ```
+pip install -r requirements.txt
+```
 
-5. **Run the Project**
-   - Start the project by running the appropriate command.
-     ```
-     streamlit run app.py
-     ```
+### Configuration
 
-6. **Access the Project**
-   - Open a web browser or the appropriate client to access the project.
+Create a `.env` file in the project root:
 
+```env
+OPENROUTER_API_KEY=sk-or-v1-your-key-here
+```
 
-## API Key Setup
+### Run
 
-To use this project, you need an API key from Google Gemini Large Language Model and Groq. Follow these steps to obtain and set up your API key:
+```bash
+# Build the vector index (ingest PDFs from Artifacts/)
+python -c "from rag import build_index; build_index()"
 
-1. **Get API Key:**
-   - Visit the Provided Links [Groq API](https://console.groq.com/keys) and [Google API](https://aistudio.google.com/app/apikey).
-   - Follow the instructions to create an account and obtain your API key.
+# Start the API server
+python server.py
+```
 
-2. **Set Up API Key:**
-   - Create a file named `.env` in the project root.
-   - Add your API key to the `.env` file:
-     ```dotenv
-     API_KEY=your_api_key_here
-     ```
+The server starts on **http://localhost:5000**.
 
-   **Note:** Keep your API key confidential. Do not share it publicly or expose it in your code.<br>
+### Docker
 
+```bash
+docker build -t docmind-rag .
+docker run -p 5000:5000 -e OPENROUTER_API_KEY=sk-or-v1-... docmind-rag
+```
 
-## Contributing
+---
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+## API
 
-• **Report bugs**: If you encounter any bugs, please let us know. Open up an issue and let us know the problem.
+| Endpoint | Method | Description |
+|---|---|---|
+| `/` | GET | Web UI |
+| `/chat` | POST | Ask a question (returns SSE stream) |
+| `/history/<session_id>` | GET | Get conversation history |
 
-• **Contribute code**: If you are a developer and want to contribute, follow the instructions below to get started!
+### `/chat` Request
 
-1. Fork the Project
-2. Create your Feature Branch
-3. Commit your Changes
-4. Push to the Branch
-5. Open a Pull Request
+```json
+{
+  "question": "What technical skills does the candidate have?",
+  "session_id": "user-abc-123"
+}
+```
 
-• **Suggestions**: If you don't want to code but have some awesome ideas, open up an issue explaining some updates or improvements you would like to see!
+### SSE Response
 
-#### Don't forget to give the project a star! Thanks again!
+```
+data: {"type": "token", "content": "The candidate..."}
+data: {"type": "confidence", "value": 0.87}
+data: {"type": "done"}
+```
+
+---
+
+## Evaluation
+
+Run RAGAS benchmarks to assess retrieval and generation quality:
+
+```bash
+python -m rag.evaluation
+```
+
+Output: `evaluation_results.json` with metrics:
+
+| Metric | Description |
+|---|---|
+| Faithfulness | Is the answer grounded in the retrieved context? |
+| Answer Relevancy | How relevant is the answer to the question? |
+| Context Precision | Are all retrieved chunks relevant? |
+| Context Recall | Were all necessary chunks retrieved? |
+
+---
+
+## Project Structure
+
+```
+├── Dockerfile
+├── .dockerignore
+├── requirements.txt
+├── server.py                    # Flask API + SSE
+├── templates/
+│   └── index.html               # Web UI
+├── rag/
+│   ├── __init__.py
+│   ├── config.py                # Pydantic settings
+│   ├── ingestion.py             # PDF chunking
+│   ├── hybrid_index.py          # FAISS + BM25 build/load
+│   ├── retriever.py             # Hybrid retrieval + MMR + reranker
+│   ├── pipeline.py              # answer() orchestrator
+│   ├── cache.py                 # Query cache with TTL
+│   ├── memory.py                # SQLite conversation memory
+│   └── evaluation.py            # RAGAS evaluation pipeline
+└── Artifacts/                   # Place PDFs here before indexing
+```
+
+---
 
 ## License
 
-This project is licensed under the [Open Source Initiative (OSI)](https://opensource.org/) approved GNU General Public License v3.0 License - see the [LICENSE.txt](LICENSE.txt) file for details.<br>
-
-
-## Acknowledgements
-
-We'd like to extend our gratitude to all individuals and organizations who have played a role in the development and success of this project. Your support, whether through contributions, inspiration, or encouragement, has been invaluable. Thank you for being a part of our journey.
+Distributed under the GNU General Public License v3.0. See `LICENSE` for details.
