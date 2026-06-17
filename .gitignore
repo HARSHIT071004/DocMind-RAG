@@ -129,6 +129,21 @@ ENV/
 env.bak/
 venv.bak/
 
+# Project specific
+chat_history.db
+vector_store/
+Artifacts/
+evaluation_results.json
+
+# Documentation
+*.md
+!README.md
+
+# Test files
+test_*.py
+launcher.py
+app.py
+
 # Spyder project settings
 .spyderproject
 .spyproject

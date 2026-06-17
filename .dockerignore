@@ -1,0 +1,17 @@
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.git/
+.gitignore
+.env
+chat_history.db
+vector_store/
+Artifacts/
+*.md
+!README.md
+test_phase1.py
+test_phase2.py
+test_phase3.py
+.streamlit/
+hf_space/
