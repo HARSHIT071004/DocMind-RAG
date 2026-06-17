@@ -1,635 +1,610 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DocMind — RAG Assistant</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DocMind — AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        dark: {
+                            bg: '#000000',
+                            sidebar: '#050505',
+                            surface: '#0a0a0a',
+                            border: '#141414',
+                            text: '#ffffff',
+                            muted: '#777777',
+                            accent: '#ffffff'
+                        },
+                        light: {
+                            bg: '#ffffff',
+                            sidebar: '#fcfcfc',
+                            surface: '#f5f5f5',
+                            border: '#eeeeee',
+                            text: '#000000',
+                            muted: '#666666',
+                            accent: '#000000'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        
+        @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
 
-:root {
-  --bg: #0a0a0c;
-  --sidebar-bg: #111113;
-  --input-bg: #1c1c1f;
-  --surface: #1a1a1f;
-  --border: rgba(255,255,255,0.08);
-  --border-hover: rgba(255,255,255,0.18);
-  --text: #ececec;
-  --text-muted: #a1a1aa;
-  --text-dim: #52525b;
-  --accent: #2dd4bf;
-  --accent-bg: rgba(45,212,191,0.06);
-  --accent-border: #1e2e2c;
-  --user-bubble: #1e1e28;
-  --danger: #ef4444;
-  --radius-input: 20px;
-}
+        html, body { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden; background: black; }
 
-html, body {
-  height: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  overflow: hidden;
-}
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.2); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #1a1a1f; border-radius: 2px; }
+        .view-section { height: 100%; width: 100%; overflow: hidden; }
+        
+        .markdown-content { font-size: 0.95rem; line-height: 1.75; }
+        .markdown-content p { margin-bottom: 1rem; }
+        .markdown-content p:last-child { margin-bottom: 0; }
+        .markdown-content ul, .markdown-content ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+        .markdown-content li { margin-bottom: 0.5rem; }
+        .markdown-content code { background: rgba(0,0,0,0.04); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.85em; }
+        .dark .markdown-content code { background: rgba(255,255,255,0.06); }
+        .markdown-content strong { font-weight: 700; color: inherit; }
 
-/* ── Layout ── */
-#app { display: flex; height: 100vh; }
-
-/* ── Sidebar ── */
-#sidebar {
-  width: 260px;
-  min-width: 260px;
-  background: var(--sidebar-bg);
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  overflow: hidden;
-  border-right: 1px solid var(--border);
-}
-
-.sb-inner {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 1rem 0.75rem;
-  overflow: hidden;
-}
-
-.sb-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.25rem 0.25rem 0.75rem;
-}
-.sb-brand-icon {
-  width: 28px; height: 28px; border-radius: 7px;
-  background: linear-gradient(135deg, #2dd4bf, #14b8a6);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.sb-brand-icon svg { color: #09090b; }
-.sb-brand-name { font-size: 0.85rem; font-weight: 700; color: #d4d4d8; letter-spacing: -0.02em; }
-.sb-brand-sub  { font-size: 0.62rem; color: #3f3f46; }
-
-.sb-divider { height: 1px; background: #1a1a1f; margin: 0.6rem 0; }
-.sb-section  { font-size: 0.62rem; color: #3f3f46; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin: 0.75rem 0 0.4rem 0.25rem; }
-
-/* sidebar buttons */
-.sb-btn {
-  width: 100%;
-  background: transparent;
-  border: none;
-  color: var(--text);
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding: 8px 12px;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.15s;
-  font-family: inherit;
-}
-.sb-btn:hover { background: #2a2a2a; }
-.sb-btn.primary { background: #212121; }
-.sb-btn.primary:hover { background: #2a2a2a; }
-
-/* status badge */
-.sb-status {
-  display: inline-flex; align-items: center; gap: 0.35rem;
-  padding: 0.25rem 0.7rem; border-radius: 999px;
-  font-size: 0.68rem; font-weight: 600; margin-top: 6px;
-}
-.sb-status.ready   { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border); }
-.sb-status.waiting { background: rgba(250,204,21,0.04); color: #a18413; border: 1px solid #2a2517; }
-.sb-dot { width: 5px; height: 5px; border-radius: 50%; }
-.sb-dot.active   { background: var(--accent); box-shadow: 0 0 6px rgba(45,212,191,0.5); }
-.sb-dot.inactive { background: #a18413; opacity: 0.6; }
-
-/* file upload area */
-#upload-area {
-  border: 1px dashed #2a2a2a;
-  border-radius: 8px;
-  padding: 12px;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color 0.2s;
-  font-size: 0.75rem;
-  color: var(--text-dim);
-}
-#upload-area:hover { border-color: #3a3a3a; color: var(--text-muted); }
-#upload-area input { display: none; }
-#upload-msg { font-size: 0.72rem; color: var(--accent); margin-top: 6px; min-height: 16px; }
-
-/* history list */
-#history-list { flex: 1; overflow-y: auto; scrollbar-width: none; }
-#history-list::-webkit-scrollbar { display: none; }
-
-.hist-item {
-  display: flex;
-  align-items: center;
-  border-radius: 8px;
-  margin-bottom: 2px;
-  transition: background 0.15s;
-  cursor: pointer;
-}
-.hist-item:hover { background: #212121; }
-.hist-item.active { background: #212121; }
-
-.hist-title-btn {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 0.82rem;
-  padding: 8px 10px;
-  text-align: left;
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-family: inherit;
-  border-radius: 8px 0 0 8px;
-}
-.hist-item.active .hist-title-btn { color: var(--text); }
-
-.hist-del-btn {
-  background: transparent;
-  border: none;
-  color: #555;
-  font-size: 0.75rem;
-  padding: 8px 8px;
-  cursor: pointer;
-  border-radius: 0 8px 8px 0;
-  opacity: 0;
-  transition: opacity 0.15s, color 0.15s;
-  font-family: inherit;
-  flex-shrink: 0;
-}
-.hist-item:hover .hist-del-btn { opacity: 1; }
-.hist-del-btn:hover { color: var(--danger) !important; }
-
-/* ── Main area ── */
-#main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
-}
-
-#messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 1.5rem 7rem;
-  max-width: 52rem;
-  width: 100%;
-  margin: 0 auto;
-}
-
-/* welcome */
-#welcome {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 18vh;
-  animation: fadeIn 0.4s ease;
-}
-.welcome-icon {
-  width: 56px; height: 56px; border-radius: 50%;
-  background: #fff;
-  display: flex; align-items: center; justify-content: center;
-  color: #0a0a0c;
-  margin-bottom: 1.25rem;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-}
-.welcome-title { font-size: 1.85rem; font-weight: 500; color: var(--text); letter-spacing: -0.02em; }
-
-/* messages */
-@keyframes fadeIn  { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
-@keyframes slideIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-
-.msg { animation: slideIn 0.2s ease; margin: 0.5rem 0; }
-
-.msg.user { display: flex; justify-content: flex-end; }
-.user-bubble {
-  background: var(--user-bubble);
-  border-radius: 16px 16px 4px 16px;
-  padding: 0.7rem 1rem;
-  max-width: 75%;
-  font-size: 0.88rem;
-  line-height: 1.65;
-  color: #e4e4e7;
-}
-
-.msg.assistant { display: flex; justify-content: flex-start; }
-.assistant-text {
-  font-size: 0.88rem;
-  line-height: 1.75;
-  color: var(--text-muted);
-  max-width: 85%;
-  white-space: pre-wrap;
-}
-
-.msg-sep { height: 1px; background: #141418; margin: 0.2rem 0; }
-
-/* typing dots */
-.typing { display: flex; align-items: center; gap: 5px; padding: 0.6rem 0; }
-.typing span {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: #3f3f46;
-  animation: dot 1.4s ease-in-out infinite;
-}
-.typing span:nth-child(2) { animation-delay: 0.2s; }
-.typing span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes dot {
-  0%,60%,100% { opacity:0.3; transform:scale(0.8); }
-  30% { opacity:1; transform:scale(1); }
-}
-
-/* ── Input bar ── */
-#input-wrap {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  background: linear-gradient(to top, var(--bg) 70%, transparent);
-  padding: 1rem 1.5rem 1.75rem;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-#input-inner {
-  max-width: 52rem;
-  margin: 0 auto;
-  background: var(--input-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
-  display: flex;
-  align-items: flex-end;
-  padding: 6px 10px 6px 20px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.2);
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-#input-inner:focus-within {
-  border-color: var(--border-hover);
-  box-shadow: 0 4px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06);
-}
-
-#chat-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text);
-  font-size: 0.97rem;
-  font-family: inherit;
-  line-height: 1.6;
-  resize: none;
-  min-height: 60px;
-  max-height: 200px;
-  padding: 14px 0;
-  caret-color: var(--text);
-  overflow-y: auto;
-}
-#chat-input::placeholder { color: var(--text-dim); }
-
-#send-btn {
-  width: 40px; height: 40px; min-width: 40px;
-  background: #e4e4e7;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 0 6px 8px;
-  align-self: flex-end;
-  flex-shrink: 0;
-  transition: background 0.15s, transform 0.1s;
-}
-#send-btn:hover { background: #fff; transform: scale(1.04); }
-#send-btn:active { transform: scale(0.96); }
-#send-btn svg { color: #09090b; }
-</style>
+        @media (max-width: 768px) {
+            #sidebar { position: fixed; left: -100%; top: 0; bottom: 0; transition: left 0.3s ease; z-index: 50; }
+            #sidebar.open { left: 0; }
+            #sidebar-overlay.visible { display: block !important; }
+        }
+    </style>
 </head>
+<body class="bg-white dark:bg-dark-bg text-black dark:text-white transition-colors duration-300 antialiased font-sans">
+    
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/70 z-40 backdrop-blur-md hidden"></div>
 
+    <div id="app" class="flex h-full w-full overflow-hidden">
+        
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-64 h-full flex-shrink-0 bg-light-sidebar dark:bg-dark-sidebar border-r border-light-border dark:border-dark-border flex flex-col z-30">
+            <div class="p-8">
+                <!-- Brand -->
+                <div class="flex items-center gap-3 mb-12">
+                    <div class="w-8 h-8 rounded-lg bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shadow-2xl">
+                        <i data-lucide="zap" class="w-5 h-5 fill-current"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-black text-sm tracking-tight leading-none uppercase">DOCMIND</h1>
+                        <span class="text-[8px] font-bold opacity-30 tracking-[0.2em] uppercase">RAG SYSTEM</span>
+                    </div>
+                </div>
 
-<body>
-<div id="app">
+                <nav class="space-y-1.5">
+                    <button onclick="showView('home')" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-white/5 group" data-view="home">
+                        <i data-lucide="home" class="w-4 h-4 opacity-40 group-[.active]:opacity-100"></i>
+                        <span>Start</span>
+                    </button>
+                    <button onclick="showView('chat')" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-white/5 group" data-view="chat">
+                        <i data-lucide="message-circle" class="w-4 h-4 opacity-40 group-[.active]:opacity-100"></i>
+                        <span>Assistant</span>
+                    </button>
+                    <button onclick="showView('documents')" class="nav-link w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-white/5 group" data-view="documents">
+                        <i data-lucide="folder" class="w-4 h-4 opacity-40 group-[.active]:opacity-100"></i>
+                        <span>Knowledge</span>
+                    </button>
+                </nav>
+            </div>
 
-  <!-- Sidebar -->
-  <aside id="sidebar">
-    <div class="sb-inner">
+            <div class="mt-auto p-6">
+                <div class="px-4 py-3 rounded-xl bg-black/5 dark:bg-white/5 flex items-center gap-3 mb-2">
+                    <div id="vs-dot" class="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
+                    <span id="vs-text" class="text-[9px] font-black text-slate-500 dark:text-dark-muted uppercase tracking-widest">OFFLINE</span>
+                </div>
+            </div>
+        </aside>
 
-      <!-- Brand -->
-      <div class="sb-brand">
-        <div class="sb-brand-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-        </div>
-        <div>
-          <div class="sb-brand-name">DocMind</div>
-          <div class="sb-brand-sub">RAG Assistant</div>
-        </div>
-      </div>
+        <!-- MAIN AREA -->
+        <main class="flex-1 flex flex-col overflow-hidden relative">
+            
+            <!-- Perplexity Style Header (Top Right) -->
+            <header class="absolute top-0 right-0 p-6 z-40">
+                <button onclick="toggleTheme()" class="p-3 rounded-full bg-white/50 dark:bg-black/50 border border-light-border dark:border-dark-border shadow-xl backdrop-blur-xl hover:scale-110 active:scale-95 transition-all">
+                    <i data-lucide="sun" class="w-4 h-4 dark:hidden text-black"></i>
+                    <i data-lucide="moon" class="w-4 h-4 hidden dark:block text-white"></i>
+                </button>
+            </header>
 
-      <button class="sb-btn primary" onclick="newChat()">+ New chat</button>
+            <!-- Mobile Top Bar -->
+            <header class="lg:hidden flex items-center justify-between px-6 py-4 border-b border-light-border dark:border-dark-border z-30 bg-white dark:bg-dark-bg">
+                <button onclick="toggleSidebar()" class="p-1 opacity-70"><i data-lucide="menu" class="w-6 h-6"></i></button>
+                <span class="font-black text-xs tracking-widest uppercase">DOCMIND</span>
+                <div class="w-6"></div>
+            </header>
 
-      <div class="sb-divider"></div>
+            <!-- HOME VIEW -->
+            <section id="view-home" class="view-section hidden overflow-y-auto">
+                <div class="max-w-4xl mx-auto px-8 py-16 lg:py-32 w-full animate-fade-in">
+                    <div class="mb-20">
+                        <h1 class="text-6xl lg:text-8xl font-black mb-8 tracking-tighter leading-none">
+                            DOCMIND<span class="opacity-20">.</span>
+                        </h1>
+                        <p class="text-xl lg:text-2xl text-slate-500 max-w-2xl leading-relaxed font-bold">
+                            Advanced document coordination. Refined for absolute precision and local security.
+                        </p>
+                    </div>
 
-      <!-- Documents -->
-      <div class="sb-section">Documents</div>
-      <label id="upload-area">
-        <input type="file" id="file-input" accept=".pdf" multiple>
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <div>Click to upload PDFs</div>
-      </label>
-      <div id="upload-msg"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-24">
+                        <div class="p-8 rounded-[2.5rem] bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border">
+                            <div class="text-4xl font-black mb-4 opacity-5 italic">01</div>
+                            <h4 class="font-black text-xs uppercase tracking-[0.2em] mb-4">DEPOSIT</h4>
+                            <p class="text-[11px] opacity-60 leading-relaxed font-bold uppercase tracking-widest">Submit PDF assets to the secure local coordination vault.</p>
+                        </div>
+                        <div class="p-8 rounded-[2.5rem] bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border">
+                            <div class="text-4xl font-black mb-4 opacity-5 italic">02</div>
+                            <h4 class="font-black text-xs uppercase tracking-[0.2em] mb-4">CONSOLIDATE</h4>
+                            <p class="text-[11px] opacity-60 leading-relaxed font-bold uppercase tracking-widest">Translate assets into indexed semantic intelligence store.</p>
+                        </div>
+                        <div class="p-8 rounded-[2.5rem] bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border">
+                            <div class="text-4xl font-black mb-4 opacity-5 italic">03</div>
+                            <h4 class="font-black text-xs uppercase tracking-[0.2em] mb-4">INQUIRE</h4>
+                            <p class="text-[11px] opacity-60 leading-relaxed font-bold uppercase tracking-widest">Engage the assistant with high-precision grounded queries.</p>
+                        </div>
+                    </div>
 
-      <div class="sb-divider"></div>
+                    <div class="bg-black dark:bg-white text-white dark:text-black rounded-[3rem] p-12 md:p-24 shadow-2xl relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <h3 class="text-4xl lg:text-6xl font-black mb-8 tracking-tighter uppercase leading-none">INITIALIZE<br>INQUIRY.</h3>
+                            <button onclick="showView('chat')" class="px-12 py-5 bg-white dark:bg-black text-black dark:text-white rounded-[1.8rem] text-[10px] font-black uppercase tracking-[0.4em] shadow-2xl hover:scale-105 active:scale-95 transition-all">
+                                START SYSTEM
+                            </button>
+                        </div>
+                        <div class="absolute -right-20 -bottom-20 w-96 h-96 opacity-10 group-hover:rotate-12 transition-transform duration-1000">
+                            <i data-lucide="zap" class="w-full h-full stroke-[1]"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-      <!-- Vector store -->
-      <div class="sb-section">Vector Store</div>
-      <button class="sb-btn primary" onclick="buildVectorStore()">Build vector store</button>
-      <div id="vs-status"></div>
+            <!-- CHAT VIEW -->
+            <section id="view-chat" class="view-section hidden flex-col md:flex-row">
+                <!-- Sidebar (History) -->
+                <aside id="chat-history" class="hidden md:flex w-72 h-full border-r border-light-border dark:border-dark-border bg-light-sidebar dark:bg-black flex-col flex-shrink-0">
+                    <div class="p-8 flex-shrink-0">
+                        <button onclick="newChat()" class="w-full py-4 px-6 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl">
+                            NEW INQUIRY
+                        </button>
+                    </div>
+                    <div id="history-list" class="flex-1 overflow-y-auto px-4 space-y-2.5 pb-12">
+                        <!-- sessions -->
+                    </div>
+                </aside>
 
-      <div class="sb-divider"></div>
+                <!-- Chat Interaction -->
+                <div class="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-dark-bg relative">
+                    <!-- Messages -->
+                    <div id="messages" class="flex-1 overflow-y-auto p-6 md:p-12 lg:p-24 space-y-16">
+                        <!-- Welcome -->
+                        <div id="chat-welcome" class="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto opacity-10 animate-fade-in">
+                            <i data-lucide="zap" class="w-20 h-20 mb-12 fill-current"></i>
+                            <h4 class="text-4xl font-black uppercase tracking-tighter leading-none italic">System<br>Synchronized.</h4>
+                        </div>
+                    </div>
 
-      <!-- History -->
-      <div class="sb-section">Recent chats</div>
-      <div id="history-list"></div>
+                    <!-- Perplexity Style Pill Input Area -->
+                    <div class="p-6 md:p-10 lg:p-16 flex-shrink-0 relative">
+                        <div class="max-w-3xl mx-auto">
+                            <div id="input-container" class="relative flex items-center bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border rounded-[2.5rem] shadow-2xl transition-all duration-500 overflow-hidden px-4 md:px-6 outline-none">
+                                <i data-lucide="search" class="w-5 h-5 opacity-20 hidden md:block"></i>
+                                <textarea id="chat-input" placeholder="What would you like to coordinate?" 
+                                    class="flex-1 bg-transparent border-none focus:ring-0 outline-none p-6 md:p-8 text-sm md:text-base resize-none max-h-64 min-h-[80px] overflow-y-auto leading-relaxed font-bold placeholder:opacity-20" 
+                                    rows="1"></textarea>
+                                <div class="flex items-center gap-3">
+                                    <button id="send-btn" onclick="sendMessage()" 
+                                        class="p-4 md:p-5 bg-black dark:bg-white text-white dark:text-black rounded-full transition-all hover:scale-110 active:scale-90 shadow-2xl flex items-center justify-center">
+                                        <i data-lucide="arrow-up" class="w-5 h-5 stroke-[4]"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="hidden md:block text-[9px] text-center mt-10 opacity-10 font-black uppercase tracking-[0.5em]">Grounded intelligence coordination v1.0</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-      <div class="sb-divider"></div>
-      <button class="sb-btn" id="clear-btn" style="color:#a1a1aa;display:none" onclick="clearChat()">Clear conversation</button>
+            <!-- DOCUMENTS VIEW -->
+            <section id="view-documents" class="view-section hidden overflow-y-auto">
+                <div class="max-w-6xl mx-auto px-8 py-16 lg:py-24 w-full animate-fade-in">
+                    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-10 mb-20 border-b-2 border-black dark:border-white pb-12">
+                        <div>
+                            <h2 class="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-none italic">Vault</h2>
+                            <p class="text-sm text-slate-500 mt-6 font-bold uppercase tracking-[0.4em] opacity-40">Coordinating Knowledge Assets.</p>
+                        </div>
+                        <div id="vs-status-badge" class="px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.2em] bg-black text-white dark:bg-white dark:text-black shadow-2xl">
+                            STATE: ONLINE
+                        </div>
+                    </div>
 
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-20">
+                        <div class="lg:col-span-2 space-y-10">
+                            <div class="p-16 md:p-32 rounded-[5rem] bg-light-surface dark:bg-dark-surface border-4 border-dashed border-light-border dark:border-dark-border hover:border-black dark:hover:border-white transition-all duration-700 group text-center cursor-pointer relative overflow-hidden">
+                                <label class="cursor-pointer block relative z-10">
+                                    <input type="file" id="file-input" accept=".pdf" multiple class="hidden">
+                                    <div class="w-32 h-32 rounded-[3.5rem] bg-black dark:bg-white text-white dark:text-black flex items-center justify-center mx-auto mb-12 shadow-2xl group-hover:scale-110 transition-transform">
+                                        <i data-lucide="plus" class="w-12 h-12 stroke-[4]"></i>
+                                    </div>
+                                    <h3 class="text-4xl font-black mb-6 uppercase tracking-tighter italic">Deposit Assets.</h3>
+                                    <span class="px-16 py-6 bg-black dark:bg-white text-white dark:text-black rounded-[2.5rem] text-[10px] font-black uppercase tracking-[0.4em] shadow-2xl active:scale-95 inline-block mt-8 hover:scale-105 transition-all">SELECT FILES</span>
+                                </label>
+                            </div>
+                            
+                            <div id="upload-status" class="hidden animate-fade-in p-12 rounded-[4rem] bg-black text-white dark:bg-white dark:text-black flex items-center gap-12 shadow-2xl">
+                                <div class="w-20 h-20 rounded-[2.5rem] bg-white/10 dark:bg-black/10 flex items-center justify-center">
+                                    <i data-lucide="check" class="w-10 h-10 stroke-[4]"></i>
+                                </div>
+                                <div>
+                                    <p id="upload-msg" class="text-3xl font-black uppercase tracking-tighter italic"></p>
+                                    <p class="text-[11px] font-black uppercase tracking-[0.4em] opacity-30 mt-4">Vault Synchronized Successfully</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-10">
+                            <div class="p-12 rounded-[4rem] bg-black dark:bg-white text-white dark:text-black h-full shadow-2xl relative overflow-hidden">
+                                <h3 class="text-3xl font-black mb-10 uppercase tracking-tighter leading-tight italic">Core<br>Index.</h3>
+                                <p class="text-[11px] opacity-40 mb-16 leading-relaxed font-bold uppercase tracking-[0.25em]">
+                                    Consolidate intelligence from submission store.
+                                </p>
+                                <button onclick="buildVectorStore()" id="build-btn" 
+                                    class="w-full py-8 px-10 bg-white/10 dark:bg-black/10 border-2 border-white/20 dark:border-black/20 text-inherit rounded-[2.5rem] text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/20 dark:hover:bg-black/20 transition-all active:scale-95 shadow-xl">
+                                    CONSOLIDATE
+                                </button>
+                                
+                                <div id="build-progress" class="hidden mt-16 space-y-10">
+                                    <div class="flex justify-between text-[11px] font-black uppercase tracking-[0.3em]">
+                                        <span class="animate-pulse">BUILDING...</span>
+                                        <span id="build-status-text">0%</span>
+                                    </div>
+                                    <div class="w-full h-4 bg-white/10 dark:bg-black/10 rounded-full overflow-hidden p-1">
+                                        <div id="build-progress-bar" class="h-full bg-white dark:bg-black rounded-full transition-all duration-1000" style="width: 15%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Success Feedback for Consolidation -->
+                                <div id="build-complete-msg" class="hidden mt-12 animate-slide-in">
+                                    <div class="flex items-center gap-4 text-green-500">
+                                        <i data-lucide="check-circle-2" class="w-6 h-6 stroke-[3]"></i>
+                                        <span class="text-xs font-black uppercase tracking-[0.2em]">Consolidation complete.</span>
+                                    </div>
+                                    <p class="text-[9px] opacity-40 mt-4 font-bold uppercase tracking-[0.2em]">The system is now fully synchronized with your latest assets.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
-  </aside>
 
-  <!-- Main -->
-  <main id="main">
-    <div id="messages">
-      <div id="welcome">
-        <div class="welcome-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-        </div>
-        <div class="welcome-title">How can I help you today?</div>
-      </div>
-    </div>
+    <script>
+        let currentSession = null;
+        let isDarkMode = true;
+        let wasBuilding = false;
 
-    <!-- Input bar -->
-    <div id="input-wrap">
-      <div id="input-inner">
-        <textarea id="chat-input" placeholder="Ask anything..." rows="1"></textarea>
-        <button id="send-btn" onclick="sendMessage()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-        </button>
-      </div>
-    </div>
-  </main>
+        // ── Navigation ──────────────────────────────────────────────────
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sb.classList.toggle('open');
+            overlay.classList.toggle('visible');
+        }
 
-</div>
+        function showView(name) {
+            document.querySelectorAll('.view-section').forEach(s => {
+                s.classList.add('hidden');
+                s.classList.remove('flex');
+            });
+            const target = document.getElementById(`view-${name}`);
+            if (target) {
+                target.classList.remove('hidden');
+                if (name === 'chat') target.classList.add('flex');
+                if (name !== 'chat') target.scrollTop = 0;
+            }
+            
+            document.querySelectorAll('.nav-link').forEach(l => {
+                if (l.dataset.view === name) {
+                    l.classList.add('bg-black', 'text-white', 'dark:bg-white', 'dark:text-black', 'shadow-2xl', 'active');
+                } else {
+                    l.classList.remove('bg-black', 'text-white', 'dark:bg-white', 'dark:text-black', 'shadow-2xl', 'active');
+                }
+            });
 
+            if (window.innerWidth < 768) {
+                const sb = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebar-overlay');
+                if (sb.classList.contains('open')) toggleSidebar();
+            }
 
-<script>
-let currentSession = null;
+            if (name === 'chat' && !currentSession) newChat();
+        }
 
-// ── Init ──────────────────────────────────────────────────────────
-async function init() {
-  await loadSessions();
-  await checkVsStatus();
-}
+        // ── Theme ───────────────────────────────────────────────────────
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) { document.documentElement.classList.add('dark'); localStorage.theme = 'dark'; }
+            else { document.documentElement.classList.remove('dark'); localStorage.theme = 'light'; }
+            lucide.createIcons();
+        }
 
-// ── Sessions ──────────────────────────────────────────────────────
-async function loadSessions() {
-  const res = await fetch('/api/sessions');
-  const sessions = await res.json();
-  renderHistory(sessions);
-  if (!currentSession) {
-    if (sessions.length) {
-      await switchSession(sessions[0].id);
-    } else {
-      await newChat();
-    }
-  }
-}
+        // ── Sessions ────────────────────────────────────────────────────
+        async function loadSessions() {
+            try {
+                const res = await fetch('/api/sessions');
+                const sessions = await res.json();
+                const list = document.getElementById('history-list');
+                if (!list) return;
+                list.innerHTML = '';
+                sessions.forEach(s => {
+                    const isActive = s.id === currentSession;
+                    const div = document.createElement('div');
+                    div.className = `group flex items-center justify-between px-6 py-5 rounded-[2rem] cursor-pointer transition-all duration-500 ${isActive ? 'bg-black dark:bg-white text-white dark:text-black shadow-2xl translate-x-2' : 'hover:bg-black/5 dark:hover:bg-white/5 opacity-40 hover:opacity-100'}`;
+                    div.onclick = () => switchSession(s.id);
+                    div.innerHTML = `
+                        <div class="flex items-center gap-4 overflow-hidden">
+                            <i data-lucide="message-square" class="w-4 h-4 flex-shrink-0"></i>
+                            <span class="text-[10px] font-black uppercase tracking-widest truncate">${s.title}</span>
+                        </div>
+                        <button onclick="deleteSession(event, '${s.id}')" class="opacity-0 group-hover:opacity-100 p-2 hover:scale-125 transition-all text-red-500">
+                            <i data-lucide="x" class="w-4 h-4 stroke-[4]"></i>
+                        </button>
+                    `;
+                    list.appendChild(div);
+                });
+                lucide.createIcons();
+            } catch (err) {}
+        }
 
-function renderHistory(sessions) {
-  const list = document.getElementById('history-list');
-  list.innerHTML = '';
-  sessions.forEach(s => {
-    const item = document.createElement('div');
-    item.className = 'hist-item' + (s.id === currentSession ? ' active' : '');
-    item.dataset.id = s.id;
-    item.innerHTML = `
-      <button class="hist-title-btn" onclick="switchSession('${s.id}')" title="${s.title}">${s.title}</button>
-      <button class="hist-del-btn" onclick="deleteSession(event,'${s.id}')">✕</button>`;
-    list.appendChild(item);
-  });
-}
+        async function newChat() {
+            try {
+                const res = await fetch('/api/sessions', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({title:'NEW INQUIRY'}) });
+                const s = await res.json();
+                currentSession = s.id;
+                clearMessages();
+                showView('chat');
+                await loadSessions();
+            } catch (err) {}
+        }
 
-async function newChat() {
-  const res = await fetch('/api/sessions', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({title:'New chat'}) });
-  const s = await res.json();
-  currentSession = s.id;
-  clearMessages();
-  await loadSessions();
-}
+        async function switchSession(sid) {
+            if (currentSession === sid) { showView('chat'); return; }
+            currentSession = sid;
+            try {
+                const res = await fetch(`/api/sessions/${sid}/messages`);
+                const msgs = await res.json();
+                clearMessages();
+                msgs.forEach(m => appendMessage(m.role, m.content));
+                showView('chat');
+                await loadSessions();
+            } catch (err) {}
+        }
 
-async function switchSession(sid) {
-  currentSession = sid;
-  const res = await fetch(`/api/sessions/${sid}/messages`);
-  const msgs = await res.json();
-  clearMessages();
-  msgs.forEach((m, i) => {
-    appendMessage(m.role, m.content);
-    if (i < msgs.length - 1) appendSep();
-  });
-  updateClearBtn(msgs.length > 0);
-  // highlight active
-  document.querySelectorAll('.hist-item').forEach(el => {
-    el.classList.toggle('active', el.dataset.id === sid);
-  });
-}
+        async function deleteSession(e, sid) {
+            e.stopPropagation();
+            if (!confirm('TERMINATE SESSION?')) return;
+            try {
+                await fetch(`/api/sessions/${sid}`, { method: 'DELETE' });
+                if (sid === currentSession) { currentSession = null; clearMessages(); }
+                await loadSessions();
+            } catch (err) {}
+        }
 
-async function deleteSession(e, sid) {
-  e.stopPropagation();
-  await fetch(`/api/sessions/${sid}`, { method: 'DELETE' });
-  if (sid === currentSession) currentSession = null;
-  await loadSessions();
-}
+        // ── Messaging Logic ───────────────────────────────────────────────
+        function clearMessages() {
+            const el = document.getElementById('messages');
+            if (!el) return;
+            el.innerHTML = `<div id="chat-welcome" class="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto opacity-10 animate-fade-in"><i data-lucide="zap" class="w-20 h-20 mb-12 fill-current"></i><h4 class="text-4xl font-black uppercase tracking-tighter leading-none italic">System<br>Ready.</h4></div>`;
+            lucide.createIcons();
+        }
 
-async function clearChat() {
-  if (!currentSession) return;
-  await fetch(`/api/sessions/${currentSession}`, { method: 'DELETE' });
-  currentSession = null;
-  await newChat();
-}
+        function appendMessage(role, content, confidence = null) {
+            const w = document.getElementById('chat-welcome');
+            if (w) w.remove();
+            const wrap = document.getElementById('messages');
+            if (!wrap) return;
 
-// ── Messages ──────────────────────────────────────────────────────
-function clearMessages() {
-  const el = document.getElementById('messages');
-  el.innerHTML = `<div id="welcome">
-    <div class="welcome-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-    </div>
-    <div class="welcome-title">How can I help you today?</div>
-  </div>`;
-  updateClearBtn(false);
-}
+            const div = document.createElement('div');
+            div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in mb-16`;
+            
+            const cont = document.createElement('div');
+            cont.className = 'flex flex-col gap-4 ' + (role === 'user' ? 'items-end max-w-[85%] md:max-w-[70%]' : 'items-start max-w-[95%] md:max-w-[85%]');
 
-function hideWelcome() {
-  const w = document.getElementById('welcome');
-  if (w) w.remove();
-}
+            const bubble = document.createElement('div');
+            // Professional & Minimal Messaging UI
+            bubble.className = role === 'user' 
+                ? 'bg-black dark:bg-white text-white dark:text-black px-10 py-7 rounded-[3rem] rounded-tr-sm text-sm lg:text-base font-bold shadow-2xl ring-1 ring-white/10'
+                : 'bg-light-surface dark:bg-dark-surface border-2 border-light-border dark:border-dark-border px-10 py-10 lg:px-14 rounded-[3.5rem] rounded-tl-sm text-sm lg:text-base shadow-xl font-medium';
+            
+            if (role === 'assistant') {
+                bubble.classList.add('markdown-content');
+                bubble.innerHTML = marked.parse(content || 'Thinking...');
+            } else {
+                bubble.textContent = content;
+            }
+            
+            cont.appendChild(bubble);
 
-function appendMessage(role, text) {
-  hideWelcome();
-  const wrap = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = `msg ${role}`;
-  if (role === 'user') {
-    div.innerHTML = `<div class="user-bubble">${escHtml(text)}</div>`;
-  } else {
-    div.innerHTML = `<div class="assistant-text">${escHtml(text)}</div>`;
-  }
-  wrap.appendChild(div);
-  wrap.scrollTop = wrap.scrollHeight;
-  return div;
-}
+            if (role === 'assistant' && confidence !== null) {
+                const meta = document.createElement('div');
+                meta.className = 'text-[9px] font-black uppercase tracking-[0.4em] opacity-30 flex items-center gap-3 px-8 text-black dark:text-white';
+                const score = Math.round(confidence * 100);
+                meta.innerHTML = `<i data-lucide="activity" class="w-4 h-4 stroke-[4]"></i> PRECISION: ${score}%`;
+                cont.appendChild(meta);
+            }
 
-function appendSep() {
-  const wrap = document.getElementById('messages');
-  const sep = document.createElement('div');
-  sep.className = 'msg-sep';
-  wrap.appendChild(sep);
-}
+            div.appendChild(cont);
+            wrap.appendChild(div);
+            wrap.scrollTop = wrap.scrollHeight;
+            lucide.createIcons();
+            return bubble;
+        }
 
-function appendTyping() {
-  hideWelcome();
-  const wrap = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = 'msg assistant';
-  div.id = 'typing-indicator';
-  div.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
-  wrap.appendChild(div);
-  wrap.scrollTop = wrap.scrollHeight;
-  return div;
-}
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text || !currentSession) return;
+            
+            input.value = ''; input.style.height = 'auto';
+            appendMessage('user', text);
+            
+            const wrap = document.getElementById('messages');
+            const typing = document.createElement('div');
+            typing.className = 'flex justify-start animate-fade-in mb-12';
+            typing.innerHTML = `<div class="bg-black text-white dark:bg-white dark:text-black px-12 py-8 rounded-[3rem] rounded-tl-sm shadow-2xl animate-pulse"><div class="flex gap-4"><div class="w-2 h-2 bg-current rounded-full"></div><div class="w-2 h-2 bg-current rounded-full opacity-60"></div><div class="w-2 h-2 bg-current rounded-full opacity-30"></div></div></div>`;
+            wrap.appendChild(typing);
+            wrap.scrollTop = wrap.scrollHeight;
 
-function escHtml(t) {
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-}
+            try {
+                const res = await fetch('/api/chat', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ session_id: currentSession, message: text }) });
+                typing.remove();
+                
+                const bubble = appendMessage('assistant', '');
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let fullText = '';
 
-function updateClearBtn(show) {
-  document.getElementById('clear-btn').style.display = show ? '' : 'none';
-}
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+                    for (const line of lines) {
+                        if (!line.startsWith('data: ')) continue;
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            if (data.token) {
+                                fullText += data.token;
+                                bubble.innerHTML = marked.parse(fullText);
+                                wrap.scrollTop = wrap.scrollHeight;
+                            }
+                            if (data.done && data.confidence !== undefined) {
+                                const meta = document.createElement('div');
+                                meta.className = 'text-[9px] font-black uppercase tracking-[0.4em] opacity-30 flex items-center gap-3 px-8 mt-4 animate-fade-in text-black dark:text-white';
+                                meta.innerHTML = `<i data-lucide="activity" class="w-4 h-4 stroke-[4]"></i> PRECISION: ${Math.round(data.confidence * 100)}%`;
+                                bubble.parentElement.appendChild(meta);
+                                lucide.createIcons();
+                            }
+                        } catch(e) {}
+                    }
+                }
+                await loadSessions();
+            } catch (err) { if(typing) typing.remove(); appendMessage('assistant', 'ERROR.'); }
+        }
 
-// ── Send ──────────────────────────────────────────────────────────
-async function sendMessage() {
-  const ta = document.getElementById('chat-input');
-  const text = ta.value.trim();
-  if (!text || !currentSession) return;
-  ta.value = '';
-  ta.style.height = 'auto';
+        // ── Init & Events ──────────────────────────────────────────────
+        const ta = document.getElementById('chat-input');
+        if (ta) {
+            ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 240) + 'px'; });
+            ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+        }
 
-  appendMessage('user', text);
-  appendSep();
-  const typing = appendTyping();
-  updateClearBtn(true);
+        const fileInput = document.getElementById('file-input');
+        if (fileInput) {
+            fileInput.addEventListener('change', async function() {
+                const container = document.getElementById('upload-status');
+                const msg = document.getElementById('upload-msg');
+                if (!this.files.length) return;
+                const fd = new FormData();
+                for (const f of this.files) fd.append('files', f);
+                container.classList.remove('hidden');
+                msg.textContent = `DEPOSITING ${this.files.length} ITEMS...`;
+                try {
+                    const res = await fetch('/api/upload', { method: 'POST', body: fd });
+                    const data = await res.json();
+                    msg.textContent = data.saved ? `${data.saved.length} ITEMS DEPOSITED` : 'FAILED.';
+                } catch (err) { msg.textContent = 'ERROR.'; }
+                this.value = '';
+            });
+        }
 
-  const res = await fetch('/api/chat', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ session_id: currentSession, message: text })
-  });
+        async function checkVsStatus() {
+            try {
+                const res = await fetch('/api/vector-store/status');
+                const { ready, building } = await res.json();
+                const dot = document.getElementById('vs-dot');
+                const text = document.getElementById('vs-text');
+                const badge = document.getElementById('vs-status-badge');
+                const progress = document.getElementById('build-progress');
+                const btn = document.getElementById('build-btn');
+                const bar = document.getElementById('build-progress-bar');
+                const completeMsg = document.getElementById('build-complete-msg');
 
-  typing.remove();
+                if (building) {
+                    dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse';
+                    text.textContent = 'CONSOLIDATING...';
+                    badge.textContent = 'STATE: BUILDING';
+                    progress.classList.remove('hidden');
+                    completeMsg.classList.add('hidden');
+                    btn.disabled = true; btn.classList.add('opacity-40');
+                    if (bar) bar.style.width = '85%';
+                    wasBuilding = true;
+                } else if (ready) {
+                    dot.className = 'w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,1)]';
+                    text.textContent = 'ONLINE';
+                    badge.textContent = 'STATE: ONLINE';
+                    progress.classList.add('hidden');
+                    btn.disabled = false; btn.classList.remove('opacity-40');
+                    
+                    // Trigger success feedback if transition from building -> ready
+                    if (wasBuilding) {
+                        completeMsg.classList.remove('hidden');
+                        lucide.createIcons();
+                        wasBuilding = false;
+                    }
+                } else {
+                    dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-400';
+                    text.textContent = 'OFFLINE';
+                    badge.textContent = 'STATE: OFFLINE';
+                    progress.classList.add('hidden');
+                    btn.disabled = false; btn.classList.remove('opacity-40');
+                    wasBuilding = false;
+                }
+            } catch (e) {}
+        }
 
-  const wrap = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = 'msg assistant';
-  const textEl = document.createElement('div');
-  textEl.className = 'assistant-text';
-  div.appendChild(textEl);
-  wrap.appendChild(div);
+        async function buildVectorStore() {
+            try { 
+                const res = await fetch('/api/vector-store/build', { method: 'POST' }); 
+                if (res.ok) {
+                    document.getElementById('build-complete-msg').classList.add('hidden');
+                    checkVsStatus(); 
+                }
+            } catch (e) {}
+        }
 
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buf = '';
+        async function init() {
+            if (localStorage.theme === 'light') { document.documentElement.classList.remove('dark'); isDarkMode = false; } 
+            else { document.documentElement.classList.add('dark'); isDarkMode = true; }
+            lucide.createIcons();
+            showView('home');
+            await checkVsStatus();
+            await loadSessions();
+            setInterval(checkVsStatus, 15000);
+            marked.setOptions({ breaks: true, gfm: true });
+        }
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buf += decoder.decode(value, { stream: true });
-    const lines = buf.split('\n');
-    buf = lines.pop();
-    for (const line of lines) {
-      if (!line.startsWith('data: ')) continue;
-      const data = JSON.parse(line.slice(6));
-      if (data.token !== undefined) {
-        textEl.textContent += data.token;
-        wrap.scrollTop = wrap.scrollHeight;
-      }
-    }
-  }
-
-  // Refresh session list (title may have updated)
-  const sessions = await (await fetch('/api/sessions')).json();
-  renderHistory(sessions);
-}
-
-// ── Input auto-resize ─────────────────────────────────────────────
-const ta = document.getElementById('chat-input');
-ta.addEventListener('input', () => {
-  ta.style.height = 'auto';
-  ta.style.height = Math.min(ta.scrollHeight, 200) + 'px';
-});
-ta.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-});
-
-// ── Upload ────────────────────────────────────────────────────────
-document.getElementById('file-input').addEventListener('change', async function() {
-  const msg = document.getElementById('upload-msg');
-  if (!this.files.length) return;
-  const fd = new FormData();
-  for (const f of this.files) fd.append('files', f);
-  msg.textContent = 'Uploading...';
-  const res = await fetch('/api/upload', { method: 'POST', body: fd });
-  const data = await res.json();
-  msg.textContent = data.saved ? `Saved: ${data.saved.join(', ')}` : (data.error || 'Error');
-  this.value = '';
-});
-
-// ── Vector store ──────────────────────────────────────────────────
-async function checkVsStatus() {
-  const res = await fetch('/api/vector-store/status');
-  const { ready } = await res.json();
-  renderVsStatus(ready);
-}
-
-function renderVsStatus(ready) {
-  document.getElementById('vs-status').innerHTML = ready
-    ? `<div class="sb-status ready"><div class="sb-dot active"></div>Ready</div>`
-    : `<div class="sb-status waiting"><div class="sb-dot inactive"></div>No data</div>`;
-}
-
-async function buildVectorStore() {
-  renderVsStatus(false);
-  document.getElementById('vs-status').innerHTML += `<div style="font-size:0.72rem;color:#a18413;margin-top:4px">Building...</div>`;
-  const res = await fetch('/api/vector-store/build', { method: 'POST' });
-  const data = await res.json();
-  renderVsStatus(data.ok === true);
-  if (data.error) {
-    document.getElementById('vs-status').innerHTML += `<div style="font-size:0.72rem;color:#ef4444;margin-top:4px">${data.error}</div>`;
-  }
-}
-
-// ── Start ─────────────────────────────────────────────────────────
-init();
-</script>
+        init();
+    </script>
 </body>
 </html>

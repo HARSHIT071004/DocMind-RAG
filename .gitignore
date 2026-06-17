@@ -144,6 +144,14 @@ test_*.py
 launcher.py
 app.py
 
+# Server logs
+server_error.txt
+server_output.txt
+
+# IDE
+.idea/
+.vscode/
+
 # Spyder project settings
 .spyderproject
 .spyproject
