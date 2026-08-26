@@ -22,24 +22,24 @@
            DESIGN SYSTEM — CSS Custom Properties
            ═══════════════════════════════════════════════════════════ */
         :root {
-            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-            /* Light Theme */
-            --bg-primary: #f7f8fa;
+            /* Light Theme — shadcn Neutral Palette */
+            --bg-primary: #fafafa;
             --bg-panel: #ffffff;
-            --bg-surface: #f0f2f5;
-            --bg-hover: #e8eaef;
-            --bg-input: #f5f6f8;
-            --border-primary: #e1e4ea;
-            --border-subtle: #eceef2;
-            --text-primary: #111827;
-            --text-secondary: #4b5563;
-            --text-muted: #9ca3af;
-            --accent: #6366f1;
-            --accent-light: rgba(99, 102, 241, 0.08);
-            --accent-border: rgba(99, 102, 241, 0.2);
-            --accent-hover: #4f46e5;
+            --bg-surface: #f5f5f5;
+            --bg-hover: #eeeeee;
+            --bg-input: #ffffff;
+            --border-primary: #e5e5e5;
+            --border-subtle: #f0f0f0;
+            --text-primary: #171717;
+            --text-secondary: #525252;
+            --text-muted: #737373;
+            --accent: #171717;
+            --accent-light: rgba(0, 0, 0, 0.04);
+            --accent-border: #e5e5e5;
+            --accent-hover: #262626;
             --success: #10b981;
             --success-light: rgba(16, 185, 129, 0.08);
             --success-border: rgba(16, 185, 129, 0.2);
@@ -47,40 +47,41 @@
             --warning-light: rgba(245, 158, 11, 0.08);
             --warning-border: rgba(245, 158, 11, 0.2);
             --error: #ef4444;
-            --user-bubble: #6366f1;
-            --user-bubble-text: #ffffff;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
-            --shadow-lg: 0 8px 30px rgba(0,0,0,0.08);
+            --user-bubble: #f5f5f5;
+            --user-bubble-text: #171717;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
         }
 
         .dark {
-            --bg-primary: #0b0d11;
-            --bg-panel: #12151c;
-            --bg-surface: #181c25;
-            --bg-hover: #1f2430;
-            --bg-input: #181c25;
-            --border-primary: #252a36;
-            --border-subtle: #1e2230;
-            --text-primary: #f1f3f7;
-            --text-secondary: #a1a9b8;
-            --text-muted: #5c6370;
-            --accent: #818cf8;
-            --accent-light: rgba(129, 140, 248, 0.08);
-            --accent-border: rgba(129, 140, 248, 0.18);
-            --accent-hover: #a5b4fc;
+            /* Dark Theme — shadcn Neutral Palette */
+            --bg-primary: #0a0a0a;
+            --bg-panel: #141414;
+            --bg-surface: #1f1f1f;
+            --bg-hover: #262626;
+            --bg-input: #141414;
+            --border-primary: #262626;
+            --border-subtle: #1c1c1c;
+            --text-primary: #ededed;
+            --text-secondary: #a3a3a3;
+            --text-muted: #737373;
+            --accent: #ededed;
+            --accent-light: rgba(255, 255, 255, 0.06);
+            --accent-border: #262626;
+            --accent-hover: #ffffff;
             --success: #34d399;
             --success-light: rgba(52, 211, 153, 0.08);
-            --success-border: rgba(52, 211, 153, 0.18);
+            --success-border: rgba(52, 211, 153, 0.2);
             --warning: #fbbf24;
             --warning-light: rgba(251, 191, 36, 0.08);
-            --warning-border: rgba(251, 191, 36, 0.18);
+            --warning-border: rgba(251, 191, 36, 0.2);
             --error: #f87171;
-            --user-bubble: #6366f1;
-            --user-bubble-text: #ffffff;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
-            --shadow-lg: 0 8px 30px rgba(0,0,0,0.4);
+            --user-bubble: #262626;
+            --user-bubble-text: #ededed;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
         }
 
         /* ═══════════════════════════════════════════════════════════
@@ -805,7 +806,7 @@
         .text-info { color: #3b82f6; }
 
         /* ═══════════════════════════════════════════════════════════
-           CHAT VIEW
+           CHAT VIEW — Professional shadcn / Tailwind Minimalist
            ═══════════════════════════════════════════════════════════ */
         .chat-container {
             flex: 1;
@@ -814,74 +815,77 @@
         }
 
         .chat-messages {
-            max-width: 760px;
+            max-width: 680px;
             margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        /* Welcome Screen */
+        /* Welcome / Empty State */
         .chat-welcome {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 60px 20px;
-            max-width: 560px;
+            padding: 48px 16px 24px;
+            max-width: 540px;
             margin: 0 auto;
         }
 
         .welcome-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            background: var(--accent-light);
-            border: 1px solid var(--accent-border);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--accent);
-            margin-bottom: 24px;
+            color: var(--text-primary);
+            margin-bottom: 16px;
         }
 
         .chat-welcome h2 {
-            font-size: 22px;
-            font-weight: 700;
+            font-size: 18px;
+            font-weight: 600;
             letter-spacing: -0.02em;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: var(--text-primary);
         }
 
         .chat-welcome p {
             font-size: 13px;
             color: var(--text-secondary);
-            line-height: 1.7;
-            margin-bottom: 32px;
+            line-height: 1.6;
+            margin-bottom: 28px;
         }
 
         /* Quick Prompts Grid */
         .quick-prompts {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
         }
 
-        @media (max-width: 500px) { .quick-prompts { grid-template-columns: 1fr; } }
+        @media (max-width: 540px) { .quick-prompts { grid-template-columns: 1fr; } }
 
         .prompt-card {
             text-align: left;
-            padding: 14px 16px;
+            padding: 12px 14px;
             border-radius: 12px;
             border: 1px solid var(--border-primary);
             background: var(--bg-panel);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
             font-family: var(--font-sans);
         }
 
         .prompt-card:hover {
-            border-color: var(--accent-border);
-            background: var(--bg-hover);
+            border-color: var(--border-primary);
+            background: var(--bg-surface);
             transform: translateY(-1px);
         }
 
@@ -892,22 +896,20 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-bottom: 4px;
-            transition: color 0.15s ease;
+            margin-bottom: 3px;
         }
-
-        .prompt-card:hover .prompt-card-title { color: var(--accent); }
 
         .prompt-card-desc {
             font-size: 11px;
             color: var(--text-muted);
+            line-height: 1.4;
         }
 
-        /* Message Bubbles */
+        /* Message Rows */
         .msg-row {
             display: flex;
-            margin-bottom: 20px;
-            animation: fadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            width: 100%;
+            animation: fadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .msg-row.user { justify-content: flex-end; }
@@ -916,58 +918,93 @@
         .msg-card {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
-        .msg-row.user .msg-card { align-items: flex-end; max-width: 75%; }
-        .msg-row.assistant .msg-card { align-items: flex-start; max-width: 88%; }
+        .msg-row.user .msg-card {
+            align-items: flex-end;
+            max-width: 80%;
+        }
 
+        .msg-row.assistant .msg-card {
+            align-items: flex-start;
+            max-width: 92%;
+            width: 100%;
+        }
+
+        /* User Bubble: exact agent-chat.tsx spec */
         .msg-bubble-user {
-            padding: 12px 18px;
-            border-radius: 18px 18px 4px 18px;
+            padding: 9px 14px;
+            border-radius: 16px;
             background: var(--user-bubble);
             color: var(--user-bubble-text);
             font-size: 13.5px;
-            line-height: 1.6;
-            font-weight: 500;
-            box-shadow: var(--shadow-sm);
+            line-height: 1.5;
+            font-weight: 400;
+            border: 1px solid var(--border-primary);
             word-break: break-word;
+            white-space: pre-wrap;
         }
 
+        /* Assistant Message: clean, open typography matching agent-chat.tsx */
         .msg-bubble-assistant {
             width: 100%;
-            padding: 20px 24px;
-            border-radius: 4px 18px 18px 18px;
-            border: 1px solid var(--border-primary);
-            background: var(--bg-panel);
-            font-size: 13.5px;
-            line-height: 1.7;
-            box-shadow: var(--shadow-sm);
+            padding: 4px 0;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            line-height: 1.65;
+            color: var(--text-primary);
             word-break: break-word;
         }
 
         .msg-meta {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 0 4px;
+            gap: 8px;
+            padding: 4px 0;
+            margin-top: 4px;
         }
 
         .confidence-badge {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 3px 8px;
+            gap: 4px;
+            padding: 2px 7px;
             border-radius: 6px;
             font-size: 10px;
             font-family: var(--font-mono);
             font-weight: 600;
-            border: 1px solid;
+            letter-spacing: 0.03em;
         }
 
-        .confidence-badge.high { color: var(--success); background: var(--success-light); border-color: var(--success-border); }
-        .confidence-badge.medium { color: var(--warning); background: var(--warning-light); border-color: var(--warning-border); }
-        .confidence-badge.low { color: var(--text-muted); background: var(--bg-surface); border-color: var(--border-primary); }
+        .confidence-badge.high {
+            color: #059669;
+            background: rgba(16, 185, 129, 0.09);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .dark .confidence-badge.high {
+            color: #34d399;
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+        }
+
+        .confidence-badge.medium {
+            color: #d97706;
+            background: rgba(245, 158, 11, 0.09);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        .dark .confidence-badge.medium {
+            color: #fbbf24;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        .confidence-badge.low {
+            color: var(--text-muted);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-primary);
+        }
 
         .msg-action-btn {
             border: none;
@@ -976,32 +1013,52 @@
             font-family: var(--font-sans);
             font-size: 11px;
             color: var(--text-muted);
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 2px 4px;
-            border-radius: 4px;
+            padding: 3px 6px;
+            border-radius: 5px;
             transition: all 0.15s ease;
         }
 
-        .msg-action-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
+        .msg-action-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-surface);
+        }
+
+        /* Error Bubble */
+        .error-bubble {
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.08);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .error-bubble-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        .error-bubble-msg {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
 
         /* Typing Indicator */
         .typing-indicator {
             display: flex;
             justify-content: flex-start;
-            margin-bottom: 16px;
+            margin: 4px 0 12px;
         }
 
         .typing-bubble {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 12px;
-            padding: 14px 20px;
-            border-radius: 4px 18px 18px 18px;
+            gap: 10px;
+            padding: 8px 14px;
+            border-radius: 12px;
             border: 1px solid var(--border-primary);
-            background: var(--bg-panel);
-            box-shadow: var(--shadow-sm);
+            background: var(--bg-surface);
         }
 
         .typing-dots {
@@ -1011,11 +1068,11 @@
         }
 
         .typing-dots span {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             border-radius: 50%;
-            background: var(--accent);
-            opacity: 0.5;
+            background: var(--text-muted);
+            opacity: 0.6;
             animation: dotBounce 1.2s infinite;
         }
 
@@ -1028,68 +1085,104 @@
             font-weight: 500;
         }
 
-        /* Chat Input */
+        /* Chat Input Bar — agent-chat.tsx InputBar */
         .chat-input-area {
             flex-shrink: 0;
-            padding: 4px 16px 8px;
+            padding: 0 16px 12px;
+            background: transparent;
+            width: 100%;
         }
 
         .chat-input-wrapper {
-            max-width: 760px;
+            max-width: 680px;
             margin: 0 auto;
         }
 
         .input-box {
             position: relative;
-            border-radius: 14px;
-            border: 1px solid var(--border-subtle);
-            background: var(--bg-primary);
+            border-radius: 16px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-primary);
+            box-shadow: var(--shadow-sm);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .input-box:focus-within {
-            border-color: var(--accent);
+            border-color: #a3a3a3;
+            box-shadow: 0 0 0 1px rgba(163, 163, 163, 0.2), var(--shadow-sm);
+        }
+        .dark .input-box:focus-within {
+            border-color: #525252;
+            box-shadow: 0 0 0 1px rgba(82, 82, 82, 0.3), var(--shadow-sm);
         }
 
         .input-box textarea {
             width: 100%;
-            padding: 14px 16px;
+            padding: 12px 14px 4px 14px;
             border: none;
+            border-radius: 16px 16px 0 0;
             background: transparent;
             font-family: var(--font-sans);
-            font-size: 13.5px;
+            font-size: 14px;
+            line-height: 1.6;
             color: var(--text-primary);
             resize: none;
             outline: none;
-            min-height: 52px;
-            max-height: 160px;
-            line-height: 1.5;
+            min-height: 44px;
+            max-height: 140px;
+            overflow-y: hidden;
+            display: block;
         }
 
-        .input-box textarea::placeholder { color: var(--text-muted); }
+        .input-box textarea::placeholder {
+            color: var(--text-muted);
+        }
 
         .input-toolbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 6px 12px 10px;
+            gap: 8px;
+            padding: 4px 8px 8px 12px;
+        }
+
+        .input-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .input-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .char-counter {
             font-size: 11px;
             font-family: var(--font-mono);
             color: var(--text-muted);
+            opacity: 0.8;
         }
 
-        .input-actions {
-            display: flex;
+        .grounded-badge {
+            display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: var(--font-mono);
+            background: var(--bg-surface);
+            color: var(--text-muted);
+            border: 1px solid var(--border-subtle);
         }
 
         .icon-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
             border: none;
             background: transparent;
             cursor: pointer;
@@ -1100,26 +1193,38 @@
             transition: all 0.15s ease;
         }
 
-        .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-
-        .send-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 16px;
-            border-radius: 8px;
-            border: none;
-            background: var(--accent);
-            color: #fff;
-            font-family: var(--font-sans);
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.15s ease;
+        .icon-btn:hover {
+            background: var(--bg-surface);
+            color: var(--text-primary);
         }
 
-        .send-btn:hover { background: var(--accent-hover); }
-        .send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .send-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--text-primary);
+            color: var(--bg-panel);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            opacity: 0.88;
+            transform: scale(1.02);
+        }
+
+        .send-btn:disabled {
+            background: var(--bg-surface);
+            color: var(--text-muted);
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
 
         /* ═══════════════════════════════════════════════════════════
            DOCUMENTS / KNOWLEDGE VAULT VIEW
@@ -1840,39 +1945,39 @@
                         <!-- Welcome State -->
                         <div id="chat-welcome" class="chat-welcome anim-fade-up">
                             <div class="welcome-icon">
-                                <i data-lucide="bot" style="width:28px;height:28px"></i>
+                                <i data-lucide="sparkles" style="width:20px;height:20px"></i>
                             </div>
                             <h2>Inquiry Assistant</h2>
-                            <p>Ask queries against your indexed PDF repository. Answers are strictly grounded with citations and confidence metrics.</p>
+                            <p>Ask queries against your indexed PDF repository. Syntheses are grounded with source citations and precision scoring.</p>
 
                             <div class="quick-prompts">
                                 <button onclick="useQuickPrompt('Summarize the primary objectives and key conclusions from the documents.')" class="prompt-card">
                                     <div class="prompt-card-title">
-                                        <i data-lucide="file-check" style="width:14px;height:14px"></i>
+                                        <i data-lucide="file-text" style="width:13px;height:13px"></i>
                                         <span>Executive Summary</span>
                                     </div>
-                                    <div class="prompt-card-desc">Key objectives & conclusions</div>
+                                    <div class="prompt-card-desc">Synthesize primary goals and high-level outcomes</div>
                                 </button>
                                 <button onclick="useQuickPrompt('Extract all compliance requirements, constraints, and operational guidelines.')" class="prompt-card">
                                     <div class="prompt-card-title">
-                                        <i data-lucide="shield-alert" style="width:14px;height:14px"></i>
-                                        <span>Compliance & Guidelines</span>
+                                        <i data-lucide="shield" style="width:13px;height:13px"></i>
+                                        <span>Compliance & Controls</span>
                                     </div>
-                                    <div class="prompt-card-desc">Operational rules & constraints</div>
+                                    <div class="prompt-card-desc">Identify operational rules, governance, and constraints</div>
                                 </button>
                                 <button onclick="useQuickPrompt('Provide a structured breakdown of the methodology and technical architecture described.')" class="prompt-card">
                                     <div class="prompt-card-title">
-                                        <i data-lucide="cpu" style="width:14px;height:14px"></i>
-                                        <span>Technical Architecture</span>
+                                        <i data-lucide="layers" style="width:13px;height:13px"></i>
+                                        <span>System Architecture</span>
                                     </div>
-                                    <div class="prompt-card-desc">Methodology & system design</div>
+                                    <div class="prompt-card-desc">Technical workflows, pipeline designs, and specs</div>
                                 </button>
                                 <button onclick="useQuickPrompt('Identify any critical risks, caveats, or limitations mentioned in the knowledge vault.')" class="prompt-card">
                                     <div class="prompt-card-title">
-                                        <i data-lucide="alert-triangle" style="width:14px;height:14px"></i>
-                                        <span>Risk & Caveat Assessment</span>
+                                        <i data-lucide="alert-circle" style="width:13px;height:13px"></i>
+                                        <span>Risk Analysis</span>
                                     </div>
-                                    <div class="prompt-card-desc">Potential bottlenecks & risks</div>
+                                    <div class="prompt-card-desc">Caveats, potential vulnerabilities, and edge cases</div>
                                 </button>
                             </div>
                         </div>
@@ -1880,20 +1985,28 @@
                     </div>
                 </div>
 
-                <!-- Chat Input -->
+                <!-- Chat Input Bar -->
                 <div class="chat-input-area">
                     <div class="chat-input-wrapper">
                         <div class="input-box" id="input-container">
-                            <textarea id="chat-input" placeholder="Ask about your indexed documents... (Enter to submit, Shift+Enter for newline)" rows="1"></textarea>
+                            <textarea id="chat-input" placeholder="Ask a question about your indexed documents..." rows="1"></textarea>
                             <div class="input-toolbar">
-                                <span id="token-counter" class="char-counter">0 chars</span>
-                                <div class="input-actions">
-                                    <button id="export-btn" onclick="exportCurrentSession()" title="Export Session" class="icon-btn">
-                                        <i data-lucide="download" style="width:16px;height:16px"></i>
+                                <div class="input-toolbar-left">
+                                    <button id="export-btn" onclick="exportCurrentSession()" title="Export Session (Markdown)" class="icon-btn">
+                                        <i data-lucide="download" style="width:14px;height:14px"></i>
                                     </button>
-                                    <button id="send-btn" onclick="sendMessage()" class="send-btn">
-                                        <span>Submit</span>
-                                        <i data-lucide="arrow-up" style="width:14px;height:14px"></i>
+                                    <span class="grounded-badge">
+                                        <i data-lucide="check" style="width:11px;height:11px"></i>
+                                        <span>Grounded</span>
+                                    </span>
+                                    <span id="token-counter" class="char-counter">0 chars</span>
+                                </div>
+                                <div class="input-toolbar-right">
+                                    <button id="send-btn" onclick="sendMessage()" aria-label="Send" class="send-btn">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="19" x2="12" y2="5"></line>
+                                            <polyline points="5 12 12 5 19 12"></polyline>
+                                        </svg>
                                     </button>
                                 </div>
                             </div>
@@ -2265,38 +2378,38 @@
             wrap.innerHTML = `
                 <div id="chat-welcome" class="chat-welcome anim-fade-up">
                     <div class="welcome-icon">
-                        <i data-lucide="bot" style="width:28px;height:28px"></i>
+                        <i data-lucide="sparkles" style="width:20px;height:20px"></i>
                     </div>
                     <h2>Inquiry Assistant</h2>
-                    <p>Ask queries against your indexed PDF repository. Answers are strictly grounded with citations and confidence metrics.</p>
+                    <p>Ask queries against your indexed PDF repository. Syntheses are grounded with source citations and precision scoring.</p>
                     <div class="quick-prompts">
                         <button onclick="useQuickPrompt('Summarize the primary objectives and key conclusions from the documents.')" class="prompt-card">
                             <div class="prompt-card-title">
-                                <i data-lucide="file-check" style="width:14px;height:14px"></i>
+                                <i data-lucide="file-text" style="width:13px;height:13px"></i>
                                 <span>Executive Summary</span>
                             </div>
-                            <div class="prompt-card-desc">Key objectives & conclusions</div>
+                            <div class="prompt-card-desc">Synthesize primary goals and high-level outcomes</div>
                         </button>
                         <button onclick="useQuickPrompt('Extract all compliance requirements, constraints, and operational guidelines.')" class="prompt-card">
                             <div class="prompt-card-title">
-                                <i data-lucide="shield-alert" style="width:14px;height:14px"></i>
-                                <span>Compliance & Guidelines</span>
+                                <i data-lucide="shield" style="width:13px;height:13px"></i>
+                                <span>Compliance & Controls</span>
                             </div>
-                            <div class="prompt-card-desc">Operational rules & constraints</div>
+                            <div class="prompt-card-desc">Identify operational rules, governance, and constraints</div>
                         </button>
                         <button onclick="useQuickPrompt('Provide a structured breakdown of the methodology and technical architecture described.')" class="prompt-card">
                             <div class="prompt-card-title">
-                                <i data-lucide="cpu" style="width:14px;height:14px"></i>
-                                <span>Technical Architecture</span>
+                                <i data-lucide="layers" style="width:13px;height:13px"></i>
+                                <span>System Architecture</span>
                             </div>
-                            <div class="prompt-card-desc">Methodology & system design</div>
+                            <div class="prompt-card-desc">Technical workflows, pipeline designs, and specs</div>
                         </button>
                         <button onclick="useQuickPrompt('Identify any critical risks, caveats, or limitations mentioned in the knowledge vault.')" class="prompt-card">
                             <div class="prompt-card-title">
-                                <i data-lucide="alert-triangle" style="width:14px;height:14px"></i>
-                                <span>Risk & Caveat Assessment</span>
+                                <i data-lucide="alert-circle" style="width:13px;height:13px"></i>
+                                <span>Risk Analysis</span>
                             </div>
-                            <div class="prompt-card-desc">Potential bottlenecks & risks</div>
+                            <div class="prompt-card-desc">Caveats, potential vulnerabilities, and edge cases</div>
                         </button>
                     </div>
                 </div>
@@ -2358,7 +2471,7 @@
                     const level = score >= 75 ? 'high' : score >= 40 ? 'medium' : 'low';
                     confBadge = `
                         <div class="confidence-badge ${level}">
-                            <i data-lucide="gauge" style="width:12px;height:12px"></i>
+                            <i data-lucide="gauge" style="width:11px;height:11px"></i>
                             <span>PRECISION: ${score}%</span>
                         </div>
                     `;
@@ -2367,7 +2480,7 @@
                 meta.innerHTML = `
                     ${confBadge}
                     <button onclick="copyMessageText(this)" title="Copy Answer" class="msg-action-btn">
-                        <i data-lucide="copy" style="width:12px;height:12px"></i>
+                        <i data-lucide="copy" style="width:11px;height:11px"></i>
                         <span>Copy</span>
                     </button>
                 `;
@@ -2380,6 +2493,18 @@
             lucide.createIcons();
 
             return bubble;
+        }
+
+        function setSendButtonIcon(isStreamingState) {
+            const btn = document.getElementById('send-btn');
+            if (!btn) return;
+            if (isStreamingState) {
+                btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>`;
+                btn.title = "Synthesizing...";
+            } else {
+                btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>`;
+                btn.title = "Submit (Enter)";
+            }
         }
 
         // ── Custom Markdown & Code Highlighting Renderer ──────────────────
@@ -2447,7 +2572,7 @@
 
             appendMessage('user', text);
 
-            // Typing indicator with bouncing dots
+            // Typing indicator
             const wrap = document.getElementById('messages');
             const typingDiv = document.createElement('div');
             typingDiv.id = 'typing-indicator';
@@ -2457,14 +2582,14 @@
                     <div class="typing-dots">
                         <span></span><span></span><span></span>
                     </div>
-                    <span class="typing-text">Retrieving context & synthesizing...</span>
+                    <span class="typing-text">Synthesizing answer from grounded sources...</span>
                 </div>
             `;
             wrap.appendChild(typingDiv);
             scrollChatToBottom();
 
             isStreaming = true;
-            document.getElementById('send-btn').disabled = true;
+            setSendButtonIcon(true);
 
             try {
                 const res = await fetch('/api/chat', {
@@ -2514,7 +2639,7 @@
                                         const level = score >= 75 ? 'high' : score >= 40 ? 'medium' : 'low';
                                         const confBadge = document.createElement('div');
                                         confBadge.className = `confidence-badge ${level}`;
-                                        confBadge.innerHTML = `<i data-lucide="gauge" style="width:12px;height:12px"></i><span>PRECISION: ${score}%</span>`;
+                                        confBadge.innerHTML = `<i data-lucide="gauge" style="width:11px;height:11px"></i><span>PRECISION: ${score}%</span>`;
                                         metaToolbar.insertBefore(confBadge, metaToolbar.firstChild);
                                     }
                                 }
@@ -2529,11 +2654,21 @@
                 if (document.getElementById('typing-indicator')) {
                     document.getElementById('typing-indicator').remove();
                 }
-                appendMessage('assistant', 'An error occurred while contacting the grounded RAG service. Please verify your vector index state.');
+                const errRow = document.createElement('div');
+                errRow.className = 'msg-row assistant';
+                errRow.innerHTML = `
+                    <div class="msg-card">
+                        <div class="error-bubble">
+                            <div class="error-bubble-title">Inquiry failed</div>
+                            <div class="error-bubble-msg">An error occurred while contacting the grounded RAG service. Please verify that documents are deposited and consolidated.</div>
+                        </div>
+                    </div>
+                `;
+                wrap.appendChild(errRow);
                 showToast('Inquiry failed to complete', 'error');
             } finally {
                 isStreaming = false;
-                document.getElementById('send-btn').disabled = false;
+                setSendButtonIcon(false);
                 scrollChatToBottom();
                 lucide.createIcons();
             }
