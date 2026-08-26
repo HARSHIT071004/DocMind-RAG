@@ -69,6 +69,11 @@ def _before_request():
 @app.after_request
 def _after_request(response):
     response.headers["X-Request-Id"] = request.rid
+    # Prevent browser caching for HTML pages so UI changes are always fresh
+    if response.content_type and "text/html" in response.content_type:
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
     return response
 
 
