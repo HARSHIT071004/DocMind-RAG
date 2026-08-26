@@ -31,7 +31,10 @@ class _LocalEmbeddings(Embeddings):
 def _get_embeddings() -> _LocalEmbeddings:
     global _EMBEDDING_MODEL
     if _EMBEDDING_MODEL is None:
-        _EMBEDDING_MODEL = SentenceTransformer(settings.EMBEDDING_MODEL)
+        _EMBEDDING_MODEL = SentenceTransformer(
+            settings.EMBEDDING_MODEL,
+            device="cpu",
+        )
     return _LocalEmbeddings(_EMBEDDING_MODEL)
 
 

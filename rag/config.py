@@ -1,4 +1,8 @@
 from pydantic_settings import BaseSettings
+import os
+
+_IS_VERCEL = os.environ.get("VERCEL") == "1"
+_BASE = "/tmp" if _IS_VERCEL else "."
 
 
 class Settings(BaseSettings):
@@ -10,16 +14,15 @@ class Settings(BaseSettings):
     PARENT_CHUNK_OVERLAP: int = 200
     MAX_PAGES: int = 20
 
-    ARTIFACTS_DIR: str = "./Artifacts"
-    VECTOR_STORE_PATH: str = "./vector_store"
+    ARTIFACTS_DIR: str = f"{_BASE}/Artifacts"
+    VECTOR_STORE_PATH: str = f"{_BASE}/vector_store"
 
-    LLM_MODEL: str = "openai/gpt-oss-120b:free"
+    LLM_MODEL: str = "nvidia/nemotron-3-super-120b-a12b:free"
     LLM_FALLBACK_MODELS: list[str] = [
-        "nvidia/nemotron-3-super-120b-a12b:free",
         "qwen/qwen3-coder:free",
         "openrouter/owl-alpha",
     ]
-    MAX_TOKENS: int = 200
+    MAX_TOKENS: int = 1024
 
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
     EMBEDDING_DIM: int = 384
@@ -41,7 +44,7 @@ class Settings(BaseSettings):
     MEMORY_MAX_TOKENS: int = 1000
     CONFIDENCE_THRESHOLD: float = 0.5
     CRAG_ENABLED: bool = True
-    CRAG_RETRY_MODEL: str = "openai/gpt-oss-120b:free"
+    CRAG_RETRY_MODEL: str = "nvidia/nemotron-3-super-120b-a12b:free"
     LLM_BASE_URL: str = "https://openrouter.ai/api/v1"
     LLM_TIMEOUT_SECONDS: int = 15
 

@@ -211,6 +211,31 @@ def build_vs():
     return jsonify({"ok": True, "message": "Build started in background"})
 
 
+@app.route("/api/vector-store/delete", methods=["POST"])
+def delete_vs():
+    global _vector_store
+    import shutil
+    from rag.config import settings
+
+    if os.path.exists(settings.VECTOR_STORE_PATH):
+        try:
+            shutil.rmtree(settings.VECTOR_STORE_PATH)
+            logger.info("Deleted vector store index")
+        except Exception as e:
+            logger.error("Failed to delete vector store index: %s", e)
+
+    if os.path.exists(settings.ARTIFACTS_DIR):
+        try:
+            shutil.rmtree(settings.ARTIFACTS_DIR)
+            logger.info("Deleted artifacts directory")
+        except Exception as e:
+            logger.error("Failed to delete artifacts directory: %s", e)
+
+    _vector_store = None
+    return jsonify({"ok": True, "message": "Vector store and document storage deleted successfully."})
+
+
+
 @app.route("/api/build-status", methods=["GET"])
 def build_status():
     global _index_future

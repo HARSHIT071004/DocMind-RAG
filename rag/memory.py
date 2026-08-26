@@ -1,10 +1,11 @@
+import os
 import sqlite3
 from datetime import datetime
 
 from rag.config import settings
 
-
-DB_PATH = "chat_history.db"
+_IS_VERCEL = os.environ.get("VERCEL") == "1"
+DB_PATH = "/tmp/chat_history.db" if _IS_VERCEL else "chat_history.db"
 
 
 def _get_conn() -> sqlite3.Connection:
